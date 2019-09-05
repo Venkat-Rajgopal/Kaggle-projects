@@ -17,13 +17,13 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix, accuracy_score, classification_report, roc_auc_score, roc_curve
-from cm_plot import plot_confusion_matrix
+from cm_plot import plot_cm
 
 
 # Visualization
 import matplotlib.pyplot as plt
 import seaborn as sns
-style.use('fivethirtyeight')
+style.use('seaborn')
 
 # ------------------------------------------------------------------------
 df = pd.read_csv('data/WA_Fn-UseC_-Telco-Customer-Churn.csv')
@@ -87,19 +87,19 @@ model_roc_auc = roc_auc_score(test_y, preds)
 print('ROC_AUC score: ' ,model_roc_auc)
 fpr,tpr,thresholds = roc_curve(test_y, probs[:,1])
 
-
+# ------------------------------------------------------------------------
 # Plot  confusion matrix and roc curve
 out_path = os.path.abspath('plots')
 
 
-fig = plt.figure(figsize=(8, 5)) 
-plt.subplot(2,2,1);
-plot_confusion_matrix(test_y, preds, classes=np.unique(df.Churn), title='Confusion matrix')
-
-plt.subplot(2,2,2);
+fig = plt.figure(figsize=(10, 5)) 
+plt.subplot(1,2,1);
+plot_cm(cm, classes=np.unique(df.Churn), mtd = 'Logistic')
+plt.subplot(1,2,2);
 plt.plot(fpr, tpr, linestyle = '-', color = "royalblue", linewidth = 2)
 
-fig.savefig(os.path.join(out_path, 'cm_roc.png'), bbox_inches='tight', dpi=100)
-
+fig.savefig(os.path.join(out_path, 'log_reg_cm_roc.png'), bbox_inches='tight', dpi=100)
 
 plt.show()
+
+
