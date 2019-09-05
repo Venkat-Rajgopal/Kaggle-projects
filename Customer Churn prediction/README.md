@@ -16,4 +16,4 @@ The data consists of pre-labelled customers as 'Churn and Non-Churns'.
 
 A Logistic Regression binary classification is performed, resulting in `roc_auc` score of `0.71` shown in the below plot. 
 
-![](/plots/log_reg_cm_roc.png)
+![](plots/log_reg_cm_roc.png)
