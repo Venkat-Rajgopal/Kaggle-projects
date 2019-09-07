@@ -4,7 +4,6 @@ import itertools
 
 
 def plot_cm(cm, classes, mtd, title='Confusion matrix', cmap=plt.cm.Blues):
-    print("\nConfusion Matrix\n", cm)
     
     #fig1 = plt.figure(figsize=(5, 5))
 
