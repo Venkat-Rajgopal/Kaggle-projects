@@ -3,10 +3,8 @@ import matplotlib.pyplot as plt
 import itertools
 
 
-def plot_cm(cm, classes, mtd, title='Confusion matrix', cmap=plt.cm.Blues):
+def plot_cm(cm, classes, mtd, title='Confusion matrix', cmap=plt.cm.Blues, write = False):
     
-    #fig1 = plt.figure(figsize=(5, 5))
-
     plt.imshow(cm, interpolation='nearest', cmap=cmap)
     plt.title(title)
     tick_marks = np.arange(len(classes))
@@ -25,8 +23,6 @@ def plot_cm(cm, classes, mtd, title='Confusion matrix', cmap=plt.cm.Blues):
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
-    plt.grid()
-
-    # Saving parameter
-    #fig1.savefig(mtd+title+'.png', bbox_inches='tight')
-    #plt.show()
+    plt.title(mtd, fontweight='bold')
+    plt.grid()    
+    plt.show()

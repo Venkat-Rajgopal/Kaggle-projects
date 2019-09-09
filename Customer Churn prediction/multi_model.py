@@ -20,8 +20,6 @@ import matplotlib.style as style
 import matplotlib.pyplot as plt
 style.use('seaborn')
 # ------------------------------------------------------------------------
-df_final = prepare_data()
-
 class Train():
     def __init__(self, classifier, data, test_percent, metrics, fixed_params = {}, random_seed = 50):
         
@@ -90,12 +88,23 @@ class Train():
                 acc.append((m, eval("{}_score".format(m))(self.test.Churn, preds)))
 
         
-        cm = confusion_matrix(self.test.Churn, preds)
+        self.cm = confusion_matrix(self.test.Churn, preds)
 
-        return preds, roc_auc, fpr, tpr, cm , acc
+        return self.cm
+
+        #return preds, roc_auc, fpr, tpr, cm , acc
 
 
+    # Plot a confusion matrix for the model
+    def plot_results(self):
+        out_path = os.path.abspath('plots')
+        fig = plt.figure(figsize=(5, 5)) 
+        plot_cm(self.cm, classes=np.unique(self.train.Churn), mtd = self.estimator.__name__)
+        fig.savefig(os.path.join(out_path, self.estimator.__name__ + '_cm' + '.png'), bbox_inches='tight', dpi=100)
+        plt.show()
 
+
+df_final = prepare_data()
 lr_grid = {'C':  np.logspace(-4, 4, 100, base=10) }
 rbf_grid =  {'C': np.logspace(-4, 1, 10, base=2), 'gamma': np.logspace(-6, 2, 10, base=2)}
 metrics = ['roc_auc', 'accuracy']
@@ -110,10 +119,12 @@ def get_results(data):
     model.cross_val(fit_metric = 'roc_auc', n_val = 3, grid_params = lr_grid)
 
     # Execute and evaluate on train and test
-    return model.model_train()
+    model.model_train()
+    model.plot_results()
 
+get_results(data = df_final)
 
-preds, roc_auc, fpr, tpr, cm, acc  = get_results(data = df_final)
+#preds, roc_auc, fpr, tpr, cm, acc  = get_results(data = df_final)
 
 def svm(data):
 
@@ -123,21 +134,10 @@ def svm(data):
 
     # Cross validate and get opt parameteres
     print('Getting params')
-    model.cross_val(fit_metric = 'roc_auc', n_val = 4, grid_params = rbf_grid)
+    model.cross_val(fit_metric = 'roc_auc', n_val = 3, grid_params = rbf_grid)
 
     # Execute and evaluate on train and test
     print('Training and evaluation')
     return model.model_train()
 
 #preds, roc_auc, fpr, tpr, cm, acc  = svm(data = df_final)
-
-out_path = os.path.abspath('plots')
-fig = plt.figure(figsize=(10, 5)) 
-plt.subplot(1,2,1)
-plot_cm(cm, classes=np.unique(df_final.Churn), mtd = 'Log reg')
-plt.subplot(1,2,2)
-plt.plot(fpr[0], tpr[0], color='royalblue', label='{} {}'.format('LR AUC:',np.round(roc_auc,3)))
-plt.plot([0, 1], [0, 1], linestyle='--', color='darkorange')
-plt.legend(loc="lower right")
-fig.savefig(os.path.join(out_path, 'LRhypparm_cm_roc.png'), bbox_inches='tight', dpi=100)
-plt.show()
