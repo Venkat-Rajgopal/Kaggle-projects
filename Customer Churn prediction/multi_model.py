@@ -6,6 +6,7 @@ wd=getcwd()
 chdir(wd)
 
 import numpy as np 
+import pandas as pd
 from data_prep import prepare_data
 from cm_plot import plot_cm
 
@@ -49,6 +50,7 @@ class Train():
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore")
 
+            #print(self.fixed_params)
             gs = GridSearchCV(self.estimator(**self.fixed_params), param_grid = grid_params, cv = n_val, scoring = self.metrics, refit = fit_metric)
             gs.fit(self.train[self.feats], self.train.Churn)
             self.hyperparameters = gs.best_params_
@@ -78,7 +80,7 @@ class Train():
         for m in self.metrics:
             if m == 'roc_auc':
                 res = roc_auc_score(self.test.Churn, prob)
-                fpr_,tpr_,thresholds_ = roc_curve(self.test.Churn, prob)
+                fpr_,tpr_, _ = roc_curve(self.test.Churn, prob)
 
                 roc_auc.append(res)
                 fpr.append(fpr_)
@@ -90,7 +92,7 @@ class Train():
         
         self.cm = confusion_matrix(self.test.Churn, preds)
 
-        return self.cm
+        return self.cm, fpr, tpr, roc_auc
 
         #return preds, roc_auc, fpr, tpr, cm , acc
 
@@ -102,6 +104,7 @@ class Train():
         plot_cm(self.cm, classes=np.unique(self.train.Churn), mtd = self.estimator.__name__)
         fig.savefig(os.path.join(out_path, self.estimator.__name__ + '_cm' + '.png'), bbox_inches='tight', dpi=100)
         plt.show()
+
 
 
 df_final = prepare_data()
@@ -122,9 +125,7 @@ def get_results(data):
     model.model_train()
     model.plot_results()
 
-get_results(data = df_final)
-
-#preds, roc_auc, fpr, tpr, cm, acc  = get_results(data = df_final)
+#get_results(data = df_final)
 
 def svm(data):
 
@@ -141,3 +142,60 @@ def svm(data):
     return model.model_train()
 
 #preds, roc_auc, fpr, tpr, cm, acc  = svm(data = df_final)
+
+
+
+# Initiate classifiers
+classifiers = [LogisticRegression, SVC]
+# Define a result table as a DataFrame
+result_table = pd.DataFrame(columns=['classifiers', 'fpr','tpr','auc'])
+
+grids = {'lr_grid': lr_grid, 'rbf_grid': rbf_grid}
+
+# Train all models and record results 
+for clf in classifiers:
+    print('Computing ', clf.__name__, '\n')
+
+    if clf == LogisticRegression:
+        use_grid = grids['lr_grid']
+        fixed_params = {}
+    if clf == SVC:
+        use_grid = grids['rbf_grid']
+        fixed_params = {'kernel': 'rbf', 'probability': True}
+
+    model = Train(classifier = clf, data = df_final, test_percent = 0.2, metrics = metrics, fixed_params = fixed_params)
+
+    model.cross_val(fit_metric = 'roc_auc', n_val = 3, grid_params = use_grid)
+    cm, fpr, tpr, roc_auc = model.model_train()
+    model.plot_results()
+    
+    # append results to the table
+    result_table = result_table.append({'classifiers':clf.__name__,
+                                        'fpr':fpr, 
+                                        'tpr':tpr, 
+                                        'auc':roc_auc}, ignore_index=True)
+
+# Set name of the classifiers as index labels
+result_table.set_index('classifiers', inplace=True)
+
+# Plot combined ROC 
+fig = plt.figure(figsize=(8,6))
+
+for i in result_table.index:
+    plt.plot(result_table.loc[i]['fpr'], 
+             result_table.loc[i]['tpr'], 
+             label="{}, AUC={:.3f}".format(i, result_table.loc[i]['auc']))
+    
+plt.plot([0,1], [0,1], color='orange', linestyle='--')
+
+plt.xticks(np.arange(0.0, 1.1, step=0.1))
+plt.xlabel("Flase Positive Rate", fontsize=15)
+
+plt.yticks(np.arange(0.0, 1.1, step=0.1))
+plt.ylabel("True Positive Rate", fontsize=15)
+
+plt.title('ROC Curve Analysis', fontweight='bold', fontsize=15)
+plt.legend(prop={'size':13}, loc='lower right')
+
+plt.show()
+fig.savefig('plots/multimodel_roc_curve.png')
