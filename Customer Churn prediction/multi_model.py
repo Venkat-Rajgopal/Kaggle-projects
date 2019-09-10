@@ -106,51 +106,17 @@ class Train():
         plt.show()
 
 
-
+# ------------------------------------------------------------------------
 df_final = prepare_data()
 lr_grid = {'C':  np.logspace(-4, 4, 100, base=10) }
 rbf_grid =  {'C': np.logspace(-4, 1, 10, base=2), 'gamma': np.logspace(-6, 2, 10, base=2)}
+grids = {'lr_grid': lr_grid, 'rbf_grid': rbf_grid}
 metrics = ['roc_auc', 'accuracy']
-
-
-def get_results(data):
-
-    # Fit training model
-    model = Train(classifier = LogisticRegression, data = data, test_percent = 0.2, metrics = metrics)
-
-    # Cross validate and get opt parameteres
-    model.cross_val(fit_metric = 'roc_auc', n_val = 3, grid_params = lr_grid)
-
-    # Execute and evaluate on train and test
-    model.model_train()
-    model.plot_results()
-
-#get_results(data = df_final)
-
-def svm(data):
-
-    # Fit training model
-    print('Fitting model')
-    model = Train(classifier = SVC, data = data, test_percent = 0.2, metrics = metrics, fixed_params= {'kernel': 'rbf', 'probability': True})
-
-    # Cross validate and get opt parameteres
-    print('Getting params')
-    model.cross_val(fit_metric = 'roc_auc', n_val = 3, grid_params = rbf_grid)
-
-    # Execute and evaluate on train and test
-    print('Training and evaluation')
-    return model.model_train()
-
-#preds, roc_auc, fpr, tpr, cm, acc  = svm(data = df_final)
-
-
 
 # Initiate classifiers
 classifiers = [LogisticRegression, SVC]
 # Define a result table as a DataFrame
 result_table = pd.DataFrame(columns=['classifiers', 'fpr','tpr','auc'])
-
-grids = {'lr_grid': lr_grid, 'rbf_grid': rbf_grid}
 
 # Train all models and record results 
 for clf in classifiers:
@@ -167,6 +133,8 @@ for clf in classifiers:
 
     model.cross_val(fit_metric = 'roc_auc', n_val = 3, grid_params = use_grid)
     cm, fpr, tpr, roc_auc = model.model_train()
+
+    # plot confusion matrix and save
     model.plot_results()
     
     # append results to the table
@@ -178,13 +146,15 @@ for clf in classifiers:
 # Set name of the classifiers as index labels
 result_table.set_index('classifiers', inplace=True)
 
+# ------------------------------------------------------------------------
 # Plot combined ROC 
 fig = plt.figure(figsize=(8,6))
 
 for i in result_table.index:
-    plt.plot(result_table.loc[i]['fpr'], 
-             result_table.loc[i]['tpr'], 
-             label="{}, AUC={:.3f}".format(i, result_table.loc[i]['auc']))
+    print(i)
+    plt.plot(result_table.loc[i]['fpr'][0], 
+             result_table.loc[i]['tpr'][0], 
+             label="{}, AUC={:.3f}".format(i, result_table.loc[i]['auc'][0]))
     
 plt.plot([0,1], [0,1], color='orange', linestyle='--')
 
