@@ -24,5 +24,4 @@ def plot_cm(cm, classes, mtd, title='Confusion matrix', cmap=plt.cm.Blues, write
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     plt.title(mtd, fontweight='bold')
-    plt.grid()    
-    plt.show()
+    plt.grid()

@@ -20,8 +20,6 @@ A Logistic Regression binary classification is performed, resulting in `roc_auc`
 
 
 ## Results after parameter tuning
-Results significantly differ after tuning the grid parameters for Logistic Regression and SVM. 
+Results significantly differ after tuning the grid parameters for Logistic Regression and SVM. Here we compare the roc curve for all the models to get a better understanding. 
 
-![](plots/LRhypparm_cm_roc.png)
-
-![](plots/svm_cm_roc.png)
+![](plots/multimodel_roc_curve.png)

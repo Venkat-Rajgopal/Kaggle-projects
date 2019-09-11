@@ -15,6 +15,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix, accuracy_score, classification_report, roc_auc_score, roc_curve
 from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
 
 # Visualization
 import matplotlib.style as style
@@ -103,18 +104,19 @@ class Train():
         fig = plt.figure(figsize=(5, 5)) 
         plot_cm(self.cm, classes=np.unique(self.train.Churn), mtd = self.estimator.__name__)
         fig.savefig(os.path.join(out_path, self.estimator.__name__ + '_cm' + '.png'), bbox_inches='tight', dpi=100)
-        plt.show()
 
 
 # ------------------------------------------------------------------------
 df_final = prepare_data()
 lr_grid = {'C':  np.logspace(-4, 4, 100, base=10) }
 rbf_grid =  {'C': np.logspace(-4, 1, 10, base=2), 'gamma': np.logspace(-6, 2, 10, base=2)}
-grids = {'lr_grid': lr_grid, 'rbf_grid': rbf_grid}
+rf_grid = {}
+
+grids = {'lr_grid': lr_grid, 'rbf_grid': rbf_grid, 'rf_grid': rf_grid}
 metrics = ['roc_auc', 'accuracy']
 
 # Initiate classifiers
-classifiers = [LogisticRegression, SVC]
+classifiers = [LogisticRegression, RandomForestClassifier, SVC]
 # Define a result table as a DataFrame
 result_table = pd.DataFrame(columns=['classifiers', 'fpr','tpr','auc'])
 
@@ -128,6 +130,9 @@ for clf in classifiers:
     if clf == SVC:
         use_grid = grids['rbf_grid']
         fixed_params = {'kernel': 'rbf', 'probability': True}
+    if clf == RandomForestClassifier:
+        fixed_params = {'n_estimators': 50, 'max_depth': 2}
+        use_grid = grids['rf_grid']
 
     model = Train(classifier = clf, data = df_final, test_percent = 0.2, metrics = metrics, fixed_params = fixed_params)
 
