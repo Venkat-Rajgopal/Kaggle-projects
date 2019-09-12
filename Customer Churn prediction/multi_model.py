@@ -11,7 +11,7 @@ from data_prep import prepare_data
 from cm_plot import plot_cm
 
 # Modelling imports from Sklearn
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split, GridSearchCV, RandomizedSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix, accuracy_score, classification_report, roc_auc_score, roc_curve
 from sklearn.svm import SVC
@@ -32,6 +32,8 @@ class Train():
 
         # save hyperparameters here
         self.hyperparametets = {}
+
+        # Add the fixed parameters to the list. 
         self.fixed_params = fixed_params
         self.fixed_params['random_state'] = random_seed
 
@@ -51,7 +53,6 @@ class Train():
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore")
 
-            #print(self.fixed_params)
             gs = GridSearchCV(self.estimator(**self.fixed_params), param_grid = grid_params, cv = n_val, scoring = self.metrics, refit = fit_metric)
             gs.fit(self.train[self.feats], self.train.Churn)
             self.hyperparameters = gs.best_params_
@@ -115,13 +116,14 @@ rf_grid = {}
 grids = {'lr_grid': lr_grid, 'rbf_grid': rbf_grid, 'rf_grid': rf_grid}
 metrics = ['roc_auc', 'accuracy']
 
+
 # Initiate classifiers
 classifiers = [LogisticRegression, RandomForestClassifier, SVC]
 # Define a result table as a DataFrame
 result_table = pd.DataFrame(columns=['classifiers', 'fpr','tpr','auc'])
 
 # Train all models and record results 
-for clf in classifiers:
+for clf in classifiers[1:2]:
     print('Computing ', clf.__name__, '\n')
 
     if clf == LogisticRegression:
@@ -131,7 +133,7 @@ for clf in classifiers:
         use_grid = grids['rbf_grid']
         fixed_params = {'kernel': 'rbf', 'probability': True}
     if clf == RandomForestClassifier:
-        fixed_params = {'n_estimators': 50, 'max_depth': 2}
+        fixed_params = {'n_estimators': 100, 'max_depth': 75}
         use_grid = grids['rf_grid']
 
     model = Train(classifier = clf, data = df_final, test_percent = 0.2, metrics = metrics, fixed_params = fixed_params)
