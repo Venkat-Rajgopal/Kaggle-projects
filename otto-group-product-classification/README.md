@@ -3,7 +3,9 @@ The Otto group is one of the world's biggest e-commerce companies selling produc
 
 This is a classical classification problem with `93` features and more than `200,000` products. 
 
-Data is taken from the [Kaggle Competition](https://www.kaggle.com/c/otto-group-product-classification-challenge/overview). 
+<img src="Grafik.jpg" alt="otto-grafik" width="550"/>
+
+Data is taken from the [Otto Product Classification Kaggle Competition](https://www.kaggle.com/c/otto-group-product-classification-challenge/overview). 
 
 
 ## Methods and Results
@@ -12,4 +14,4 @@ The data consists of pre-labelled products from Classes  as `Class_1` to `Class_
 The train set in split as _train_ and _validation_.  The test set is not labelled so we are unable to evaluate the performance on the test set. 
 
 The plots below shows the FCN performance. 
-![](evaluation/fc_eval.png)
+<img src="evaluation/fc_eval.png" alt="eval" width="500"/>
