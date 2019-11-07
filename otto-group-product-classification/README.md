@@ -11,7 +11,8 @@ Data is taken from the [Otto Product Classification Kaggle Competition](https://
 ## Methods and Results
 The data consists of pre-labelled products from Classes  as `Class_1` to `Class_9`. The classification task is performed with a **Fully Connected Neural Network**. 
 
-The train set in split as _train_ and _validation_.  The test set is not labelled so we are unable to evaluate the performance on the test set. 
+The train set is split as _train_ and _validation_.  The test set is not labelled so we are unable to evaluate the performance on the test set. 
 
 The plots below shows the FCN performance. 
+
 <img src="evaluation/fc_eval.png" alt="eval" width="500"/>
