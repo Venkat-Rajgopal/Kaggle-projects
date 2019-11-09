@@ -13,7 +13,7 @@ x_train, x_val, y_train, y_val = get_data_split()
 
 # Set training parameters 
 learning_rate = 0.001
-training_steps = 200
+training_steps = 500
 batch_size = 128
 display_step = 10
 
@@ -91,17 +91,42 @@ def run_optimization(x, y):
     # Compute gradients.
     gradients = g.gradient(loss, trainable_variables)
     
-    # Update W and b following gradients.
+    # Update weights and bias
     optimizer.apply_gradients(zip(gradients, trainable_variables))
 
+
+train_loss = []
+train_acc = []
 
 # Run training
 for step, (batch_x, batch_y) in enumerate(train_data.take(training_steps), 1):
 
     run_optimization(batch_x, batch_y)
-    
+        
     if step % display_step == 0:
         pred = conv_net(batch_x)
         loss = compute_loss(pred, batch_y)
         acc = accuracy(pred, batch_y)
+        
+        train_loss.append(loss)
+        train_acc.append(acc)
+
         print("step: %i, loss: %f, accu: %f" % (step, loss, acc))
+
+# Test model on validation set.
+pred = conv_net(x_val.values)
+print("Validation Accuracy: %f" % accuracy(pred, y_val))
+
+# plot training
+fig = plt.figure(figsize=(6,5))
+plt.plot(train_loss, 'r', label='Loss on training')
+plt.plot(train_acc, 'b', label='Accuracy on training')
+plt.title('Training Accuracy and Loss')
+plt.ylabel('Accuracy and Loss')
+plt.xlabel('Training Epoch')
+plt.ylim(0)
+plt.legend()
+plt.show()
+fig.savefig('evaluation/cnn_eval.png')
+
+
