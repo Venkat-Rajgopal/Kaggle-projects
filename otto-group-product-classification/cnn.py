@@ -13,9 +13,9 @@ x_train, x_val, y_train, y_val = get_data_split()
 
 # Set training parameters 
 learning_rate = 0.001
-training_steps = 500
+training_steps = 200
 batch_size = 128
-display_step = 10
+display_step = 1
 
 n_samples = x_train.shape[0]
 n_feats = x_train.shape[1]
@@ -115,15 +115,17 @@ for step, (batch_x, batch_y) in enumerate(train_data.take(training_steps), 1):
 
 # Test model on validation set.
 pred = conv_net(x_val.values)
-print("Validation Accuracy: %f" % accuracy(pred, y_val))
+val_acc = accuracy(pred, y_val)
+print("Validation Accuracy: %f" % val_acc)
 
 # plot training
 fig = plt.figure(figsize=(6,5))
 plt.plot(train_loss, 'r', label='Loss on training')
 plt.plot(train_acc, 'b', label='Accuracy on training')
+plt.text(150, 0.2,  ('Val acc:', val_acc.numpy())) 
 plt.title('Training Accuracy and Loss')
 plt.ylabel('Accuracy and Loss')
-plt.xlabel('Training Epoch')
+plt.xlabel('Training Iter')
 plt.ylim(0)
 plt.legend()
 plt.show()

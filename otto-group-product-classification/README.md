@@ -16,3 +16,12 @@ The train set is split as _train_ and _validation_.  The test set is not labelle
 The plots below shows the FCN performance. 
 
 <img src="evaluation/fc_eval.png" alt="eval" width="500"/>
+
+
+Performance on a 2 layer [Convolutional network](cnn.py). 
+
+<img src="evaluation/cnn_eval.png" alt="eval" width="500"/>
+
+```python
+Validation Accuracy: 0.779493
+```
