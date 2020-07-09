@@ -9,6 +9,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 data/
+results/
 build/
 develop-eggs/
 dist/
@@ -22,6 +23,7 @@ sdist/
 var/
 wheels/
 share/python-wheels/
+.idea/
 *.egg-info/
 .installed.cfg
 *.egg

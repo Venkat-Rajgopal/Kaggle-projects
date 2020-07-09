@@ -11,7 +11,7 @@ class Attention(Layer):
 
         self.supports_masking = True
         # weight initializer
-        self.init = initializers.get('glorot_uniform') # initializers.glorot_uniform()
+        self.init = initializers.get('glorot_uniform')  # initializers.glorot_uniform()
 
         self.w_regularizer = regularizers.get(w_regularizer)
         self.b_regularizer = regularizers.get(b_regularizer)
@@ -52,7 +52,7 @@ class Attention(Layer):
         step_dim = self.step_dim
 
         eij = K.reshape(K.dot(K.reshape(x, (-1, features_dim)),
-                        K.reshape(self.w, (features_dim, 1))), (-1, step_dim))
+                              K.reshape(self.w, (features_dim, 1))), (-1, step_dim))
 
         if self.bias:
             eij += self.b
@@ -70,9 +70,16 @@ class Attention(Layer):
         return K.sum(weighted_input, axis=1)
 
     def compute_output_shape(self, input_shape):
-        return input_shape[0],  self.features_dim
+        return input_shape[0], self.features_dim
 
-
-
-
-
+    def get_config(self):
+        config = {
+            'step_dim': self.step_dim,
+            'w_regularizer': self.w_regularizer,
+            'w_constraint': self.w_constraint,
+            'b_regularizer': self.b_regularizer,
+            'b_constraint': self.b_constraint,
+            'bias': self.bias
+        }
+        base_config = super(Attention, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
